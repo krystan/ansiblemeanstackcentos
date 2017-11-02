@@ -1,0 +1,8 @@
+---
+# The version of mongodb to use
+mongodb_version: "3.1"
+# Set the version of Node.js to install ("0.12", "4.x", "5.x", "6.x", "8.x").
+# Version numbers from Nodesource: https://github.com/nodesource/distributions
+nodejs_version: "6.x"
+# Node app location
+node_apps_location: "/opt/mean"

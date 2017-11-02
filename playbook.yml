@@ -1,0 +1,87 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+    - name: Update all yum modules to latest
+      yum:
+        name: '*'
+        state: latest
+        update_cache: "yes"
+        exclude: kernel*
+
+  tasks:
+    - name: install base packages
+      yum: name={{item}} state=present
+      with_items:
+        - gcc-c++
+        - make
+        - git
+        - fontconfig
+        - bzip2
+        - libpng-devel
+        - ruby
+        - ruby-devel
+    - gem:
+        name: sass
+        state: present
+
+    - name: add MongoDB official repository for CentOS
+      copy: src=./files/mongodb-org-3.2.repo dest=/etc/yum.repos.d/mongodb-org-3.2.repo
+    
+    - name: install MongoDB
+      yum: name="mongodb-org" update_cache=yes  state=latest
+
+    - name: start Mongo
+      command: systemctl start mongod
+      
+    - name: Ensures /opt/nodejs_8.x dir exists
+      file: path=/opt/nodejs_8.x state=directory
+
+     - name: Install Remi repo
+      yum:
+        name: "http://rpms.remirepo.net/enterprise/remi-release-7.rpm"
+        state: present
+
+    - name: Import Remi GPG key
+      rpm_key:
+        key: "http://rpms.remirepo.net/RPM-GPG-KEY-remi"
+        state: present
+
+    - name: Install EPEL remirepo
+      yum: name=epel-release state=present
+
+    - name: Ensure firewalld is stopped (since this is for testing)
+      service: name=firewalld state=stopped
+
+    - name: Install Node.js and npm.
+      yum: name=npm state=present enablerepo=epel
+
+    - name: Install Bower
+      command: npm install -g bower
+
+    - name: Install Gulp
+      command: npm install -g gulp
+
+    - name: clone Boilerplate Mean.js app
+      git: 
+        repo: https://github.com/meanjs/mean.git
+        dest: {{node_apps_location}}
+
+    - name: Running NPM install
+    - name: Install app dependencies defined in package.json
+      npm: path={{ node_apps_location }}
+
+    - name: Install Forever (to run our Node.js app).
+      npm: name=forever global=yes state=present
+
+    - name: Check list of running Node.js apps
+      command: forever list
+      register: forever_list
+      changed_when: false
+
+    - name: Start example Node.js app.
+      command: "forever start {{ node_apps_location }}/server.js"
+      when: "forever_list.stdout.find(node_apps_location + '/server.js') == -1"

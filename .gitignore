@@ -1,0 +1,5 @@
+**/.vagrant
+**/.vagrant.d
+**/.log
+export.sh
+playbook.retry
