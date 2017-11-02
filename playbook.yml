@@ -68,20 +68,19 @@
     - name: clone Boilerplate Mean.js app
       git: 
         repo: https://github.com/meanjs/mean.git
-        dest: {{node_apps_location}}
+        dest: "{{ node_apps_location }}"
 
-    - name: Running NPM install
     - name: Install app dependencies defined in package.json
       npm: path={{ node_apps_location }}
 
- #   - name: Install Forever (to run our Node.js app).
- #     npm: name=forever global=yes state=present
+    - name: Install Forever (to run our Node.js app).
+      npm: name=forever global=yes state=present
 
- #   - name: Check list of running Node.js apps
- #     command: forever list
- #     register: forever_list
- #     changed_when: false
+    - name: Check list of running Node.js apps
+      command: forever list
+      register: forever_list
+      changed_when: false
 
- #   - name: Start example Node.js app.
- #     command: "forever start {{ node_apps_location }}/server.js"
- #     when: "forever_list.stdout.find(node_apps_location + '/server.js') == -1"
+    - name: Start example Node.js app.
+      command: "forever start --minUptime 1000 --spinSleepTime 1000 {{ node_apps_location }}/server.js"
+      when: "forever_list.stdout.find(node_apps_location + '/server.js') == -1"
