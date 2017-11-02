@@ -40,7 +40,7 @@
     - name: Ensures /opt/nodejs_8.x dir exists
       file: path=/opt/nodejs_8.x state=directory
 
-     - name: Install Remi repo
+    - name: Install Remi repo
       yum:
         name: "http://rpms.remirepo.net/enterprise/remi-release-7.rpm"
         state: present
@@ -74,14 +74,14 @@
     - name: Install app dependencies defined in package.json
       npm: path={{ node_apps_location }}
 
-    - name: Install Forever (to run our Node.js app).
-      npm: name=forever global=yes state=present
+ #   - name: Install Forever (to run our Node.js app).
+ #     npm: name=forever global=yes state=present
 
-    - name: Check list of running Node.js apps
-      command: forever list
-      register: forever_list
-      changed_when: false
+ #   - name: Check list of running Node.js apps
+ #     command: forever list
+ #     register: forever_list
+ #     changed_when: false
 
-    - name: Start example Node.js app.
-      command: "forever start {{ node_apps_location }}/server.js"
-      when: "forever_list.stdout.find(node_apps_location + '/server.js') == -1"
+ #   - name: Start example Node.js app.
+ #     command: "forever start {{ node_apps_location }}/server.js"
+ #     when: "forever_list.stdout.find(node_apps_location + '/server.js') == -1"
